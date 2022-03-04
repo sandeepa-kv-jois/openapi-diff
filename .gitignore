@@ -1,5 +1,7 @@
 *.class
-
+*.json
+*.html
+*.md
 .classpath
 .project
 .settings/*
