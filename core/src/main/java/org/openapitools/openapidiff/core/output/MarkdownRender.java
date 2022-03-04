@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,22 @@ public class MarkdownRender implements Render {
         + listEndpoints("What's Deleted", diff.getMissingEndpoints())
         + listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints())
         + listEndpoints(diff.getChangedOperations());
+  }
+
+  public String renderOnlyIncompatible(ChangedOpenApi diff) {
+    this.diff = diff;
+    List<ChangedOperation> origChangedOperation = diff.getChangedOperations();
+    List<ChangedOperation> incompatibleOperations = new ArrayList<ChangedOperation>();
+    if (null == origChangedOperation || origChangedOperation.isEmpty()) {
+      return "";
+    } else {
+      for (int i = 0; i < diff.getChangedOperations().size(); i++) {
+        if (origChangedOperation.get(i).isIncompatible() == true) {
+          incompatibleOperations.add(origChangedOperation.get(i));
+        }
+      }
+      return listEndpoints(incompatibleOperations);
+    }
   }
 
   protected String sectionTitle(String title) {

@@ -91,6 +91,13 @@ public class Main {
             .build());
     options.addOption(
         Option.builder()
+            .longOpt("inmd")
+            .hasArg()
+            .argName("file")
+            .desc("export incompatible diff as markdown in given file")
+            .build());
+    options.addOption(
+        Option.builder()
             .longOpt("html")
             .hasArg()
             .argName("file")
@@ -194,6 +201,12 @@ public class Main {
         String outputFile = line.getOptionValue("text");
         writeOutput(output, outputFile);
       }
+      if (line.hasOption("inmd")) {
+        MarkdownRender mdRender = new MarkdownRender();
+        String output = mdRender.renderOnlyIncompatible(result);
+        String outputFile = line.getOptionValue("inmd");
+        writeOutput(output, outputFile);
+      }
       if (line.hasOption("json")) {
         JsonRender jsonRender = new JsonRender();
         String output = jsonRender.render(result);
@@ -208,11 +221,14 @@ public class Main {
       } else if (line.hasOption("fail-on-changed")) {
         System.exit(result.isUnchanged() ? 0 : 1);
       }
+
     } catch (ParseException e) {
       // oops, something went wrong
       System.err.println("Parsing failed. Reason: " + e.getMessage());
       printHelp(options);
       System.exit(2);
+    } catch (OutOfMemoryError e) {
+      System.err.println("OutOfMemoryError" + e.getMessage());
     } catch (Exception e) {
       System.err.println(
           "Unexpected exception. Reason: "
