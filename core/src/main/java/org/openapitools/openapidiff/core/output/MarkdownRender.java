@@ -38,7 +38,7 @@ public class MarkdownRender implements Render {
 
   protected RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected ChangedOpenApi diff;
-  protected Set<Schema<?>> handledSchemas = new HashSet<>();
+  //protected Set<Schema<?>> handledSchemas = new HashSet<>();
   /**
    * A parameter which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
@@ -47,7 +47,7 @@ public class MarkdownRender implements Render {
 
   public String render(ChangedOpenApi diff) {
     this.diff = diff;
-    this.handledSchemas.clear();
+    //this.handledSchemas.clear();
     return listEndpoints("What's New", diff.getNewEndpoints())
         + listEndpoints("What's Deleted", diff.getMissingEndpoints())
         + listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints())
@@ -56,6 +56,7 @@ public class MarkdownRender implements Render {
 
   public String renderOnlyIncompatible(ChangedOpenApi diff) {
     this.diff = diff;
+    // this.handledSchemas.clear();
     List<ChangedOperation> origChangedOperation = diff.getChangedOperations();
     List<ChangedOperation> incompatibleOperations = new ArrayList<ChangedOperation>();
     if (null == origChangedOperation || origChangedOperation.isEmpty()) {
@@ -356,8 +357,8 @@ public class MarkdownRender implements Render {
   }
 
   protected String schema(int deepness, Schema schema, DiffContext context) {
-    if (handledSchemas.contains(schema)) return "";
-    handledSchemas.add(schema);
+    //if (handledSchemas.contains(schema)) return "";
+    //handledSchemas.add(schema);
     StringBuilder sb = new StringBuilder();
     sb.append(listItem(deepness, "Enum", schema.getEnum()));
     sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
