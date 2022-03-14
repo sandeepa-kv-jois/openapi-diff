@@ -13,7 +13,7 @@ public class ChangedEnum<T> extends ChangedList<T> {
 
   @Override
   public DiffResult isItemsChanged() {
-    if (context.isRequest() && getMissing().isEmpty()
+    if (context.isRequest() && getMissing().isEmpty() //context.isResponse() && newValue.containsAll(oldValue) to ignore enum flagging
         || context.isResponse() && getIncreased().isEmpty()) {
       return DiffResult.COMPATIBLE;
     }
