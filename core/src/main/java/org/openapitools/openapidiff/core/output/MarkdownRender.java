@@ -259,7 +259,9 @@ public class MarkdownRender implements Render {
   }
 
   protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
-    return itemContent("Changed content type", mediaType) + schema(deepness, content.getSchema());
+    // mentions broken compatibility per schema
+    String compatibility= content.isCompatible() ? "Backward compatible" : "Broken compatibility";
+    return itemContent("Changed content type", mediaType) +" "+compatibility+"\n"+schema(deepness, content.getSchema());
   }
 
   protected String schema(ChangedSchema schema) {

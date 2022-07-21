@@ -14,11 +14,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.utils.RefPointer;
 import org.openapitools.openapidiff.core.utils.RefType;
+import org.openapitools.openapidiff.core.output.MarkdownRender;
 
 public class ConsoleRender implements Render {
   private static final int LINE_LENGTH = 74;
   protected static RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected ChangedOpenApi diff;
+  protected MarkdownRender mr= new MarkdownRender();
 
   @Override
   public String render(ChangedOpenApi diff) {
@@ -32,21 +34,29 @@ public class ConsoleRender implements Render {
           .append(StringUtils.center(diff.getNewSpecOpenApi().getInfo().getTitle(), LINE_LENGTH))
           .append(System.lineSeparator());
 
-      List<Endpoint> newEndpoints = diff.getNewEndpoints();
-      String ol_newEndpoint = listEndpoints(newEndpoints, "What's New");
-
-      List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
-      String ol_missingEndpoint = listEndpoints(missingEndpoints, "What's Deleted");
-
-      List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
-      String ol_deprecatedEndpoint = listEndpoints(deprecatedEndpoints, "What's Deprecated");
-
-      List<ChangedOperation> changedOperations = diff.getChangedOperations();
-      String ol_changed = ol_changed(changedOperations);
-
+//      List<Endpoint> newEndpoints = diff.getNewEndpoints();
+//      String ol_newEndpoint = listEndpoints(newEndpoints, "What's New");
+//
+        List<Endpoint> missingEndpoints = diff.getMissingEndpoints();
+        String ol_missingEndpoint = listEndpoints(missingEndpoints, "What's Deleted");
+//
+//      List<Endpoint> deprecatedEndpoints = diff.getDeprecatedEndpoints();
+//      String ol_deprecatedEndpoint = listEndpoints(deprecatedEndpoints, "What's Deprecated");
+//
+//      List<ChangedOperation> changedOperations = diff.getChangedOperations();
+//      String ol_changed = ol_changed(changedOperations);
+      //uncomment and append in `output` to add new, deleted , deprecated and compatibly changed endpoints
+//            .append(renderBody(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed))
+      output.append(ol_missingEndpoint);
+      MarkdownRender mdRender = new MarkdownRender();
+      String outputMarkdown = mdRender.renderOnlyIncompatible(diff);
+      if (outputMarkdown != null && !outputMarkdown.isEmpty() ){
+        output
+                .append(title("What's Incompatible"))
+                .append(outputMarkdown);
+      }
       output
-          .append(renderBody(ol_newEndpoint, ol_missingEndpoint, ol_deprecatedEndpoint, ol_changed))
-          .append(title("Result"))
+              .append(title("Result"))
           .append(
               StringUtils.center(
                   diff.isCompatible()
@@ -95,6 +105,7 @@ public class ConsoleRender implements Render {
       }
       sb.append(itemEndpoint(method, pathUrl, desc)).append(ul_detail);
     }
+
     return sb.toString();
   }
 
