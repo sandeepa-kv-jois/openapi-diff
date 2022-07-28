@@ -12,10 +12,8 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.openapidiff.core.model.*;
 import org.openapitools.openapidiff.core.utils.RefPointer;
@@ -38,7 +36,7 @@ public class MarkdownRender implements Render {
 
   protected RefPointer<Schema<?>> refPointer = new RefPointer<>(RefType.SCHEMAS);
   protected ChangedOpenApi diff;
-  //protected Set<Schema<?>> handledSchemas = new HashSet<>();
+  // protected Set<Schema<?>> handledSchemas = new HashSet<>();
   /**
    * A parameter which indicates whether or not metadata (summary and metadata) changes should be
    * logged in the changelog file.
@@ -47,7 +45,7 @@ public class MarkdownRender implements Render {
 
   public String render(ChangedOpenApi diff) {
     this.diff = diff;
-    //this.handledSchemas.clear();
+    // this.handledSchemas.clear();
     return listEndpoints("What's New", diff.getNewEndpoints())
         + listEndpoints("What's Deleted", diff.getMissingEndpoints())
         + listEndpoints("What's Deprecated", diff.getDeprecatedEndpoints())
@@ -113,20 +111,35 @@ public class MarkdownRender implements Render {
                               operation.getHttpMethod().toString(),
                               operation.getPathUrl(),
                               operation.getSummary()));
+              //              details.append(
+              //                  operation.isIncompatible() ? "Broken compatibility\n" : "Backward
+              // compatible\n");
               if (result(operation.getParameters()).isDifferent()) {
                 details
                     .append(titleH5("Parameters:"))
+                    .append(
+                        operation.getParameters().isIncompatible()
+                            ? "Broken compatibility\n"
+                            : "Backward compatible\n")
                     .append(parameters(operation.getParameters()));
               }
               if (operation.resultRequestBody().isDifferent()) {
                 details
                     .append(titleH5("Request:"))
+                    .append(
+                        operation.getRequestBody().isIncompatible()
+                            ? "Broken compatibility\n"
+                            : "Backward compatible\n")
                     .append(metadata("Description", operation.getRequestBody().getDescription()))
                     .append(bodyContent(operation.getRequestBody().getContent()));
               }
               if (operation.resultApiResponses().isDifferent()) {
                 details
                     .append(titleH5("Return Type:"))
+                    .append(
+                        operation.getApiResponses().isIncompatible()
+                            ? "Broken compatibility\n"
+                            : "Backward compatible\n")
                     .append(responses(operation.getApiResponses()));
               }
               return details.toString();
@@ -260,8 +273,12 @@ public class MarkdownRender implements Render {
 
   protected String itemContent(int deepness, String mediaType, ChangedMediaType content) {
     // mentions broken compatibility per schema
-    String compatibility= content.isCompatible() ? "Backward compatible" : "Broken compatibility";
-    return itemContent("Changed content type", mediaType) +" "+compatibility+"\n"+schema(deepness, content.getSchema());
+    String compatibility = content.isCompatible() ? "Backward compatible" : "Broken compatibility";
+    return itemContent("Changed content type", mediaType)
+        + " "
+        + compatibility
+        + "\n"
+        + schema(deepness, content.getSchema());
   }
 
   protected String schema(ChangedSchema schema) {
@@ -359,8 +376,8 @@ public class MarkdownRender implements Render {
   }
 
   protected String schema(int deepness, Schema schema, DiffContext context) {
-    //if (handledSchemas.contains(schema)) return "";
-    //handledSchemas.add(schema);
+    // if (handledSchemas.contains(schema)) return "";
+    // handledSchemas.add(schema);
     StringBuilder sb = new StringBuilder();
     sb.append(listItem(deepness, "Enum", schema.getEnum()));
     sb.append(properties(deepness, "Property", schema.getProperties(), true, context));
